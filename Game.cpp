@@ -10,14 +10,18 @@
 
 using namespace std;
 // Constructor
-Game::Game() {
+Game::Game() : printRoomDescription(true) {
     // Create and setup rooms
     Room* livingRoom = new Room("You are in the living room. There's an exit to the north.");
     Room* kitchen = new Room("You are in the kitchen. There's an exit to the south.");
+    Room* garden = new Room("You are in the garden. There's an exit to the south.");
 
     // Set exits for rooms
     livingRoom->setExit("north", kitchen);
     kitchen->setExit("south", livingRoom);
+    
+    kitchen->setExit("east", garden);
+    garden->setExit("west", kitchen);
 
     // Add items to rooms
     Remote* livingRoomRemote = new Remote("Controls Living Room TV");
@@ -34,8 +38,13 @@ Game::~Game() {
 
 void Game::run() {
     while (true) {
+        std::string thisRM = currentRoom->description;
+        
         // Display current room description
-        std::cout << currentRoom->description << std::endl;
+        if (printRoomDescription) {
+            std::cout << currentRoom->description << std::endl;
+            printRoomDescription = false; // Reset the flag
+        }
 
         // Get command from the user
         std::string command;
@@ -48,6 +57,9 @@ void Game::run() {
             break; // Exit the game loop
         } else if (command == "search" || command == "look") {
             currentRoom->searchRoom();
+        } else if (command == "where" || command == "lost") {
+            cout << "*Sticks Finger In Air* \n" << thisRM << endl;
+            continue;
         } else if (command.substr(0, 4) == "take") {
             if (command.size() <= 5) { // "take " is 5 characters
                 cout << "Take what?" << endl;
@@ -62,6 +74,7 @@ void Game::run() {
                 std::cout << "You can't go that way." << std::endl;
             }
         }
+        printRoomDescription = true;
     }
 }
 
